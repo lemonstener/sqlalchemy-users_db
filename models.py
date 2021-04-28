@@ -27,7 +27,7 @@ class User(db.Model):
 
     image_url = db.Column(
         db.String,
-        unique = True
+        default = 'https://www.travelcontinuously.com/wp-content/uploads/2018/04/empty-avatar.png'
     )
 
     def __repr__(self):

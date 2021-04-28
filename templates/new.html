@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}New user form{% endblock %}
+{% block content %}
+
+<div>
+ <h1>Enter information</h1>
+ <form action="/users/new" method="POST">
+    <input type="text" name="first" placeholder="First name"><br>
+    <input type="text" name="last" placeholder="Last name"><br>
+    <input type="text" name="url" placeholder="Image URL"><br>
+    <button>Submit new user</button>
+</form>   
+<a href="/users"><button>Cancel</button></a>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+</div>
+
+
+{% endblock %}
