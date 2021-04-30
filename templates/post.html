@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{{post.title}}{% endblock %}
+{% block content %}
+
+
+<div>
+<h1>{{post.title}}</h1>  
+<p>{{post.content}}</p>
+<blockquote>By {{post.user.full_name()}}</blockquote>
+<a href="/users/{{post.user.id}}"><button>Return</button></a><br>
+<a href="/posts/{{post.id}}/edit"><button>Edit post</button></a><br>
+</div>
+
+
+
+{% endblock %}

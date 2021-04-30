@@ -33,7 +33,7 @@ class UserViewsTestCase(TestCase):
 
         db.session.rollback()
 
-    def test_list_pets(self):
+    def test_list_user(self):
         with app.test_client() as client:
             resp = client.get("/")
             html = resp.get_data(as_text=True)
@@ -41,7 +41,7 @@ class UserViewsTestCase(TestCase):
             self.assertEqual(resp.status_code, 302)
             
 
-    def test_show_pet(self):
+    def test_show_user(self):
         with app.test_client() as client:
             resp = client.get(f"/users/{self.user_id}")
             html = resp.get_data(as_text=True)

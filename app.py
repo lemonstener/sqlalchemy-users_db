@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, flash, redirect, sessions
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User
+from models import db, connect_db, User, Post
 
 app = Flask(__name__)
 
@@ -12,6 +12,9 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
 connect_db(app)
+
+
+# USERS
 
 @app.route('/')
 def redirect_to_users():
@@ -39,7 +42,7 @@ def create_user():
     image_url = image_url if image_url else None
 
     if len(first_name) == 0 or len(last_name) == 0:
-        flash('First and last names cannot be null')
+        flash('First and last names cannot be empty')
         db.session.rollback()
         return redirect(f'/users/new')
 
@@ -62,7 +65,7 @@ def update_user(user_id):
     user.image_url = request.form['url']
 
     if len(user.first_name) == 0 or len(user.last_name) == 0:
-        flash('First and last names cannot be null')
+        flash('First and last names cannot be empty')
         db.session.rollback()
         return redirect(f'/users/{user_id}/edit')
  
@@ -74,9 +77,67 @@ def update_user(user_id):
 
     return redirect(f'/users/{user.id}')  
     
-
 @app.route('/users/<int:user_id>/delete')
 def delete_user(user_id):
-    User.query.filter_by(id=user_id).delete()
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
     db.session.commit()
     return redirect('/users')
+
+
+# POSTS
+
+@app.route('/posts/<int:post_id>')
+def show_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html',post=post)
+
+@app.route('/users/<int:user_id>/posts/new')
+def show_post_form(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('/post-new.html',user=user)
+
+@app.route('/users/<int:user_id>/posts/new', methods=['POST'])
+def new_post(user_id):
+    title = request.form['title']
+    content = request.form['content']
+
+    if len(title) == 0 or len(content) == 0:
+        flash('Title and content cannot be empty')
+        db.session.rollback()
+        return redirect(f'/users/{user_id}/posts/new')
+
+    post = Post(title=title,content=content,user_id=user_id)
+    db.session.add(post)
+    db.session.commit()
+    return redirect(f'/users/{user_id}')
+
+@app.route('/posts/<int:post_id>/edit')
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post-edit.html',post=post)
+
+@app.route('/posts/<int:post_id>/edit', methods=['POST'])
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    post.title = request.form['title']
+    post.content = request.form['content']
+
+    if len(post.title) == 0 or len(post.content) == 0:
+        flash('Title and content cannot be empty')
+        db.session.rollback()
+        return redirect(f'/posts/{post_id}/edit')
+ 
+    db.session.add(post)
+    db.session.commit()
+
+    return redirect(f'/users/{post.user.id}')  
+
+@app.route('/posts/<int:post_id>/delete')
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    return redirect(f'/users/{post.user_id}')
+
+
