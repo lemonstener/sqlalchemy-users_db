@@ -132,18 +132,15 @@ def update_post(post_id):
     post = Post.query.get_or_404(post_id)
     post.title = request.form['title']
     post.content = request.form['content']
-    tags = request.form.getlist('tags')
+
+    tag_ids = [int(num) for num in request.form.getlist("tags")]
+    post.tags = Tag.query.filter(Tag.id.in_(tag_ids)).all()
 
     if len(post.title) == 0 or len(post.content) == 0:
         flash('Title and content cannot be empty')
         db.session.rollback()
         return redirect(f'/posts/{post_id}/edit')
-    
-    for num in tags:
-        post_tag = PostTag(post_id=post.id,tag_id=num)
-        db.session.add(post_tag)
-        db.session.commit()
-    
+        
     db.session.add(post)
     db.session.commit()
 
@@ -206,7 +203,7 @@ def edit_tag(tag_id):
 
 @app.route('/tags/<int:tag_id>/delete')
 def delete_tag(tag_id):
-    tag = Tag.query.get(tag_id)
+    tag = Tag.query.get_or_404(tag_id)
     db.session.delete(tag)
     db.session.commit()
     return redirect('/tags')
