@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Edit tag {{tag.name}}{% endblock %}
+{% block content %}
+
+
+<div>
+<h1>{{tag.name}}</h1>
+</div>
+
+<div>
+    <h2>Edit tag</h2>
+    <form action="/tags/{{tag.id}}/edit" method="POST">
+        <input type="text" name="name" placeholder="Edit tag name" value="{{tag.name}}"><br>
+        <button>Update tag</button>
+    </form>
+    <a href="/tags/{{tag.id}}"><button>Cancel</button></a>
+    <a href="/tags/{{tag.id}}/delete"><button>Delete tag</button></a>
+    
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+
+
+{% endblock %}

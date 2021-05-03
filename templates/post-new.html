@@ -7,9 +7,15 @@
  <form action="/users/{{user.id}}/posts/new" method="POST">
     <input type="text" name="title" placeholder="title"><br>
     <input type="text" name="content" placeholder="content"><br>
-    <button>Submit post</button>
+    
+    <button>Submit post</button><br>
+    <h2>Choose tags</h2>
+    {% for tag in tags %}
+    <label for="{{tag.id}}">{{tag.name}}</label>
+    <input type="checkbox" name="tags" id="{{tag.id}}" value="{{tag.id}}"><br>
+    {% endfor %}
 </form>   
-<a href="/users/{{user.id}}"><button>Cancel</button></a>
+    <a href="/users/{{user.id}}"><button>Cancel</button></a>
 
     {% with messages = get_flashed_messages() %}
     {% if messages %}

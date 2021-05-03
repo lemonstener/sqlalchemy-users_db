@@ -13,6 +13,11 @@
         <input type="text" name="title" placeholder="Post title" value="{{post.title}}"><br>
         <input type="text" name="content" placeholder="Post content" value="{{post.content}}"><br>
         <button>Update post</button>
+        <h2>Choose tags</h2>
+    {% for tag in tags %}
+    <label for="{{tag.id}}">{{tag.name}}</label>
+    <input type="checkbox" name="tags" id="{{tag.id}}" value="{{tag.id}}"><br>
+    {% endfor %}
     </form>
     <a href="/posts/{{post.id}}"><button>Cancel</button></a>
     <a href="/posts/{{post.id}}/delete"><button>Delete post</button></a>

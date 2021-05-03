@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}New tag form{% endblock %}
+{% block content %}
+
+<div>
+ <h1>Enter information</h1>
+ <form action="/tags/new" method="POST">
+    <input type="text" name="name" placeholder="Enter name for the tag"><br>
+    <button>Create new tag</button>
+</form>   
+<a href="/tags"><button>Cancel</button></a>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+</div>
+
+
+{% endblock %}

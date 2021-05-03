@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, flash, redirect, sessions
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post
+from models import db, connect_db, User, Post, Tag, PostTag
 
 app = Flask(__name__)
 
@@ -90,17 +90,20 @@ def delete_user(user_id):
 @app.route('/posts/<int:post_id>')
 def show_post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('post.html',post=post)
+    tags = post.tags
+    return render_template('post.html',post=post,tags=tags)
 
 @app.route('/users/<int:user_id>/posts/new')
 def show_post_form(user_id):
     user = User.query.get_or_404(user_id)
-    return render_template('/post-new.html',user=user)
+    tags = Tag.query.all()
+    return render_template('/post-new.html',user=user,tags=tags)
 
 @app.route('/users/<int:user_id>/posts/new', methods=['POST'])
 def new_post(user_id):
     title = request.form['title']
     content = request.form['content']
+    tags = request.form.getlist('tags')
 
     if len(title) == 0 or len(content) == 0:
         flash('Title and content cannot be empty')
@@ -110,28 +113,41 @@ def new_post(user_id):
     post = Post(title=title,content=content,user_id=user_id)
     db.session.add(post)
     db.session.commit()
+
+    for num in tags:
+        tag = PostTag(post_id=post.id,tag_id=num)
+        db.session.add(tag)
+        db.session.commit()
+    
     return redirect(f'/users/{user_id}')
 
 @app.route('/posts/<int:post_id>/edit')
 def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('post-edit.html',post=post)
+    tags = Tag.query.all()
+    return render_template('post-edit.html',post=post,tags=tags)
 
 @app.route('/posts/<int:post_id>/edit', methods=['POST'])
 def update_post(post_id):
     post = Post.query.get_or_404(post_id)
     post.title = request.form['title']
     post.content = request.form['content']
+    tags = request.form.getlist('tags')
 
     if len(post.title) == 0 or len(post.content) == 0:
         flash('Title and content cannot be empty')
         db.session.rollback()
         return redirect(f'/posts/{post_id}/edit')
- 
+    
+    for num in tags:
+        post_tag = PostTag(post_id=post.id,tag_id=num)
+        db.session.add(post_tag)
+        db.session.commit()
+    
     db.session.add(post)
     db.session.commit()
 
-    return redirect(f'/users/{post.user.id}')  
+    return redirect(f'/posts/{post.id}')  
 
 @app.route('/posts/<int:post_id>/delete')
 def delete_post(post_id):
@@ -141,3 +157,56 @@ def delete_post(post_id):
     return redirect(f'/users/{post.user_id}')
 
 
+# TAGS
+
+@app.route('/tags')
+def show_tags():
+    tags = Tag.query.all()
+    return render_template('tags.html',tags=tags)
+
+@app.route('/tags/new')
+def show_tag_form():
+    return render_template('tag-new.html')
+
+@app.route('/tags/new', methods=['POST'])
+def create_tag():
+    name = request.form['name']
+    tag = Tag(name=name)
+
+    if len(name) == 0:
+        flash('Tag name cannot be empty')
+        return redirect('/tags/new')
+
+    db.session.add(tag)
+    db.session.commit()
+    return redirect('/tags')
+
+@app.route('/tags/<int:tag_id>')
+def show_tag(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template('tag.html',tag=tag)
+
+@app.route('/tags/<int:tag_id>/edit')
+def show_edit_tag_form(tag_id):
+    tag = Tag.query.get_or_404(tag_id)
+    return render_template('tag-edit.html',tag=tag)
+
+@app.route('/tags/<int:tag_id>/edit', methods=['POST'])
+def edit_tag(tag_id):
+    name = request.form['name']
+    tag = Tag.query.get_or_404(tag_id)
+
+    if len(name) == 0:
+        flash('Tag name cannot be empty')
+        return redirect(f'/tags/{tag.id}/edit')
+
+    tag.name = name
+    db.session.commit()
+    return redirect(f'/tags/{tag.id}')
+
+@app.route('/tags/<int:tag_id>/delete')
+def delete_tag(tag_id):
+    tag = Tag.query.get(tag_id)
+    db.session.delete(tag)
+    db.session.commit()
+    return redirect('/tags')

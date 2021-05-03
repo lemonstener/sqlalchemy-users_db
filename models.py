@@ -47,7 +47,8 @@ class Post(db.Model):
 
     id = db.Column(
         db.Integer, 
-        primary_key=True
+        primary_key=True,
+        autoincrement=True
         )
 
     title = db.Column(
@@ -75,3 +76,36 @@ class Post(db.Model):
     def __repr__(self):
         p = self
         return f'<Post_id = {p.id} title = {p.title} content = {p.content} created_at = {p.created_at} user_id {p.user_id}> '
+
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    name = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    posts = db.relationship('Post', secondary='post_tags', backref='tags')
+
+
+class PostTag(db.Model):
+    __tablename__ = 'post_tags'
+
+    post_id = db.Column(
+        db.Integer,
+        db.ForeignKey('posts.id'),
+        primary_key=True
+    )
+
+    tag_id = db.Column(
+        db.Integer,
+        db.ForeignKey('tags.id'),
+        primary_key=True
+    )

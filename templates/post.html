@@ -5,7 +5,12 @@
 
 <div>
 <h1>{{post.title}}</h1>  
-<p>{{post.content}}</p>
+<h2>{{post.content}}</h2>
+<hr>
+<h3>Tags:</h3>
+{% for tag in tags %}
+<span>{{tag.name}}</span>
+{% endfor %}
 <blockquote>By {{post.user.full_name()}}</blockquote>
 <a href="/users/{{post.user.id}}"><button>Return</button></a><br>
 <a href="/posts/{{post.id}}/edit"><button>Edit post</button></a><br>
